@@ -1,0 +1,27 @@
+{
+  "name": "primary",
+  "version": "1.0.0",
+  "description": "Open `index.html` in a browser to practice calculating a 5% commission and the remaining 95% payout. Each random bet is between $5 and $15,000, in $5 increments. The payout is the bet minus the commission, not an additional return of the original bet.",
+  "main": "game.js",
+  "scripts": {
+    "build": "esbuild analytics.js --bundle --outfile=analytics.bundle.js --format=iife",
+    "test": "node --test game.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kotara-boop/Commission-Practice.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kotara-boop/Commission-Practice/issues"
+  },
+  "homepage": "https://github.com/Kotara-boop/Commission-Practice#readme",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}
