@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#102f29">
+    <title>Commission Practice</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="game.js" defer></script>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="Commission Practice home">
+          <span class="brand-mark" aria-hidden="true">%</span>
+          <span>COMMISSION <span class="brand-light">PRACTICE</span></span>
+        </a>
+        <span class="topbar-label">A LITTLE PRACTICE GOES A LONG WAY</span>
+      </header>
+
+      <section class="intro" aria-labelledby="page-title">
+        <p class="eyebrow"><span aria-hidden="true"></span> SHARPEN YOUR MATH</p>
+        <h1 id="page-title">5% Commission Practice</h1>
+        <p>Practice calculating a 5% commission and the remaining 95% payout.</p>
+      </section>
+
+      <section class="game-card" aria-labelledby="game-title">
+        <div class="card-heading">
+          <div>
+            <p class="section-label">THE PRACTICE TABLE</p>
+            <h2 id="game-title">Your next bet</h2>
+          </div>
+        </div>
+
+        <fieldset class="mode-picker">
+          <legend>Practice mode</legend>
+          <div class="mode-options">
+            <label><input type="radio" name="mode" value="numbers" checked> Numbers</label>
+            <label><input type="radio" name="mode" value="chips"> Poker chips</label>
+            <label><input type="radio" name="mode" value="chips-payout"> Chips: payout only</label>
+          </div>
+          <p>Changing modes starts a new bet.</p>
+        </fieldset>
+
+        <section class="statistics" aria-labelledby="statistics-title">
+          <div class="statistics-heading">
+            <h3 id="statistics-title">First-attempt accuracy</h3>
+            <p>Separate for each mode; retries don't change your score.</p>
+          </div>
+          <div class="statistics-results" aria-live="polite">
+            <p id="commission-stats"><strong>Commission</strong> <span>0 correct · 0 incorrect · — accuracy</span></p>
+            <p id="payout-stats"><strong>Payout</strong> <span>0 correct · 0 incorrect · — accuracy</span></p>
+          </div>
+        </section>
+
+        <div class="bet-panel">
+          <div class="bet-decoration bet-decoration-left" aria-hidden="true"></div>
+          <div class="bet-decoration bet-decoration-right" aria-hidden="true"></div>
+          <p>BET AMOUNT</p>
+          <strong id="bet-amount">$0</strong>
+          <div id="bet-chips" class="bet-chips" aria-label="Bet chips" hidden></div>
+          <span>What does this bet break down to?</span>
+        </div>
+
+        <form id="answer-form" novalidate>
+          <div class="inputs" id="amount-inputs">
+            <div class="field">
+              <label for="commission">5% commission</label>
+              <p id="commission-hint">The amount taken from the bet</p>
+              <div class="input-wrap">
+                <span aria-hidden="true">$</span>
+                <input id="commission" name="commission" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-describedby="commission-hint commission-feedback">
+              </div>
+              <p class="field-feedback" id="commission-feedback"></p>
+            </div>
+            <div class="field" id="number-payout">
+              <label for="payout">95% payout</label>
+              <p id="payout-hint">The amount left after commission</p>
+              <div class="input-wrap">
+                <span aria-hidden="true">$</span>
+                <input id="payout" name="payout" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-describedby="payout-hint payout-feedback">
+              </div>
+              <p class="field-feedback" id="payout-feedback"></p>
+            </div>
+          </div>
+          <fieldset id="chip-payout" class="chip-payout" aria-describedby="chip-payout-hint chip-feedback" hidden>
+            <legend>95% payout in chips</legend>
+            <p id="chip-payout-hint">Enter how many of each chip or quarter you would pay. Any combination that adds up to the payout is correct.</p>
+            <div id="chip-inputs" class="chip-inputs"></div>
+            <p class="field-feedback" id="chip-feedback" aria-live="polite"></p>
+          </fieldset>
+
+          <div class="form-footer">
+            <p id="status" role="status" aria-live="polite">Enter both amounts to check your answer.</p>
+            <button type="submit" id="check-button">Check answer <span aria-hidden="true">↗</span></button>
+            <button type="button" id="next-button" hidden>Next bet <span aria-hidden="true">→</span></button>
+          </div>
+        </form>
+      </section>
+
+      <div class="tip">
+        <span class="tip-icon" aria-hidden="true">✦</span>
+        <p><strong>A little tip</strong><span>Find 10%, then cut it in half for the commission.</span></p>
+      </div>
+    </main>
+  </body>
+</html>
