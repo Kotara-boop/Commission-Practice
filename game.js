@@ -127,6 +127,7 @@ if (typeof document !== "undefined") {
   }
 
   const chipAddButtons = [];
+  const chipRemoveButtons = [];
   const guessEntries = [];
   const countInputs = DENOMINATIONS.map((denomination) => {
     const description = document.createElement("span");
@@ -147,7 +148,12 @@ if (typeof document !== "undefined") {
     const guessEntry = document.createElement("div");
     guessEntry.className = "payout-chip-choice";
     guessEntry.hidden = true;
-    guessEntry.append(makeChip(denomination));
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.className = "chip-remove";
+    removeButton.setAttribute("aria-label", `Remove one ${description.textContent}`);
+    removeButton.append(makeChip(denomination));
+    guessEntry.append(removeButton);
     const input = document.createElement("input");
     input.id = inputId;
     input.type = "number";
@@ -166,6 +172,12 @@ if (typeof document !== "undefined") {
       chipFeedback.textContent = "";
       chipFeedback.classList.remove("correct");
     });
+    removeButton.addEventListener("click", () => {
+      const current = Number(input.value);
+      if (!Number.isSafeInteger(current) || current <= 0) return;
+      input.value = String(current - 1);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
     addButton.addEventListener("click", () => {
       const current = input.value === "" ? 0 : Number(input.value);
       if (!Number.isSafeInteger(current) || current < 0 || current === Number.MAX_SAFE_INTEGER) return;
@@ -173,6 +185,7 @@ if (typeof document !== "undefined") {
       input.dispatchEvent(new Event("input", { bubbles: true }));
     });
     chipAddButtons.push(addButton);
+    chipRemoveButtons.push(removeButton);
     guessEntries.push(guessEntry);
     chipTray.append(trayChoice);
     payoutCounts.append(guessEntry);
@@ -221,6 +234,7 @@ if (typeof document !== "undefined") {
       input.removeAttribute("aria-invalid");
     });
     chipAddButtons.forEach((button) => { button.disabled = false; });
+    chipRemoveButtons.forEach((button) => { button.disabled = false; });
     commissionInput.disabled = false;
     payoutInput.disabled = false;
     const usesChips = mode !== "numbers";
@@ -297,6 +311,7 @@ if (typeof document !== "undefined") {
       payoutInput.disabled = true;
       countInputs.forEach((input) => { input.disabled = true; });
       chipAddButtons.forEach((button) => { button.disabled = true; });
+      chipRemoveButtons.forEach((button) => { button.disabled = true; });
       checkButton.hidden = true;
       nextButton.hidden = false;
       nextButton.focus();
