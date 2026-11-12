@@ -2,7 +2,9 @@
 
 const MIN_BET = 5;
 const MAX_BET = 15000;
+const LOWER_BET_MAX = 2500;
 const BET_INCREMENT = 5;
+const LOWER_BET_CHANCE = 0.7;
 const DENOMINATIONS = [
   { cents: 500000, label: "$5,000", color: "grey" },
   { cents: 100000, label: "$1,000", color: "orange" },
@@ -15,8 +17,15 @@ const DENOMINATIONS = [
 ];
 
 function randomBet(random = Math.random) {
-  const choices = (MAX_BET - MIN_BET) / BET_INCREMENT + 1;
-  return MIN_BET + Math.floor(random() * choices) * BET_INCREMENT;
+  const value = random();
+  const lower = value < LOWER_BET_CHANCE;
+  const min = lower ? MIN_BET : LOWER_BET_MAX + BET_INCREMENT;
+  const max = lower ? LOWER_BET_MAX : MAX_BET;
+  const position = lower
+    ? value / LOWER_BET_CHANCE
+    : (value - LOWER_BET_CHANCE) / (1 - LOWER_BET_CHANCE);
+  const choices = (max - min) / BET_INCREMENT + 1;
+  return min + Math.floor(position * choices) * BET_INCREMENT;
 }
 
 function parseMoney(value) {

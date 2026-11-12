@@ -4,11 +4,23 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const { randomBet, parseMoney, calculateAmounts, chipBreakdown, chipTotal, DENOMINATIONS, recordResult, formatStats } = require("./game.js");
 
-test("bets span $5 to $15,000 in $5 increments", () => {
+test("bets use a 70/30 split with $2,500 in the lower range", () => {
   assert.equal(randomBet(() => 0), 5);
+  assert.equal(randomBet(() => 0.7 - Number.EPSILON), 2500);
+  assert.equal(randomBet(() => 0.7), 2505);
   assert.equal(randomBet(() => 0.999999), 15000);
-  for (let i = 0; i < 3000; i++) {
-    assert.equal(randomBet(() => (i + 0.5) / 3000), (i + 1) * 5);
+  let lower = 0;
+  for (let i = 0; i < 10000; i++) {
+    const bet = randomBet(() => (i + 0.5) / 10000);
+    assert.ok(bet >= 5 && bet <= 15000 && bet % 5 === 0);
+    if (bet <= 2500) lower++;
+  }
+  assert.equal(lower, 7000);
+  for (let i = 0; i < 500; i++) {
+    assert.equal(randomBet(() => 0.7 * (i + 0.5) / 500), (i + 1) * 5);
+  }
+  for (let i = 0; i < 2500; i++) {
+    assert.equal(randomBet(() => 0.7 + 0.3 * (i + 0.5) / 2500), 2505 + i * 5);
   }
 });
 
