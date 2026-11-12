@@ -121,15 +121,27 @@ if (typeof document !== "undefined") {
     return chip;
   }
 
+  const chipAddButtons = [];
   const countInputs = DENOMINATIONS.map((denomination) => {
-    const label = document.createElement("label");
-    label.className = "chip-choice";
+    const choice = document.createElement("div");
+    choice.className = "chip-choice";
     const description = document.createElement("span");
     description.className = "chip-description";
     description.textContent = denomination.color === "quarter"
       ? "25¢ quarter"
       : `${denomination.label} ${denomination.color}`;
+    const inputId = `chip-count-${denomination.color}`;
+    const addButton = document.createElement("button");
+    addButton.type = "button";
+    addButton.className = "chip-add";
+    addButton.setAttribute("aria-label", `Add one ${description.textContent}`);
+    addButton.append(makeChip(denomination));
     const input = document.createElement("input");
+    const label = document.createElement("label");
+    label.className = "visually-hidden";
+    label.htmlFor = inputId;
+    label.textContent = `Number of ${description.textContent}`;
+    input.id = inputId;
     input.type = "number";
     input.inputMode = "numeric";
     input.min = "0";
@@ -137,8 +149,18 @@ if (typeof document !== "undefined") {
     input.value = "0";
     input.defaultValue = "0";
     input.setAttribute("aria-describedby", "chip-payout-hint chip-feedback");
-    label.append(makeChip(denomination), description, input);
-    chipInputs.append(label);
+    addButton.addEventListener("click", () => {
+      const current = input.value === "" ? 0 : Number(input.value);
+      if (!Number.isSafeInteger(current) || current < 0 || current === Number.MAX_SAFE_INTEGER) return;
+      input.value = String(current + 1);
+      input.removeAttribute("aria-invalid");
+      chipFeedback.textContent = "";
+      chipFeedback.classList.remove("correct");
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    chipAddButtons.push(addButton);
+    choice.append(addButton, description, label, input);
+    chipInputs.append(choice);
     return input;
   });
 
@@ -183,6 +205,7 @@ if (typeof document !== "undefined") {
       input.disabled = false;
       input.removeAttribute("aria-invalid");
     });
+    chipAddButtons.forEach((button) => { button.disabled = false; });
     commissionInput.disabled = false;
     payoutInput.disabled = false;
     const usesChips = mode !== "numbers";
@@ -250,6 +273,7 @@ if (typeof document !== "undefined") {
       commissionInput.disabled = true;
       payoutInput.disabled = true;
       countInputs.forEach((input) => { input.disabled = true; });
+      chipAddButtons.forEach((button) => { button.disabled = true; });
       checkButton.hidden = true;
       nextButton.hidden = false;
       nextButton.focus();
