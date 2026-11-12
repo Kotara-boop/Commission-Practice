@@ -80,13 +80,18 @@ if (typeof module !== "undefined" && module.exports) {
 
 if (typeof document !== "undefined") {
   const form = document.getElementById("answer-form");
+  const betPanel = document.querySelector(".bet-panel");
   const betAmount = document.getElementById("bet-amount");
   const betChips = document.getElementById("bet-chips");
+  const payoutGuess = document.getElementById("payout-guess");
+  const payoutCounts = document.getElementById("payout-counts");
+  const payoutEmpty = document.getElementById("payout-empty");
+  const betQuestion = document.getElementById("bet-question");
+  const chipTray = document.getElementById("chip-tray");
+  const chipPayout = document.getElementById("chip-payout");
   const modeInputs = document.querySelectorAll('input[name="mode"]');
   const amountInputs = document.getElementById("amount-inputs");
   const numberPayout = document.getElementById("number-payout");
-  const chipPayout = document.getElementById("chip-payout");
-  const chipInputs = document.getElementById("chip-inputs");
   const chipFeedback = document.getElementById("chip-feedback");
   const commissionInput = document.getElementById("commission");
   const payoutInput = document.getElementById("payout");
@@ -122,9 +127,8 @@ if (typeof document !== "undefined") {
   }
 
   const chipAddButtons = [];
+  const guessEntries = [];
   const countInputs = DENOMINATIONS.map((denomination) => {
-    const choice = document.createElement("div");
-    choice.className = "chip-choice";
     const description = document.createElement("span");
     description.className = "chip-description";
     description.textContent = denomination.color === "quarter"
@@ -136,11 +140,15 @@ if (typeof document !== "undefined") {
     addButton.className = "chip-add";
     addButton.setAttribute("aria-label", `Add one ${description.textContent}`);
     addButton.append(makeChip(denomination));
+    const trayChoice = document.createElement("div");
+    trayChoice.className = "chip-choice";
+    trayChoice.append(addButton);
+
+    const guessEntry = document.createElement("div");
+    guessEntry.className = "payout-chip-choice";
+    guessEntry.hidden = true;
+    guessEntry.append(makeChip(denomination));
     const input = document.createElement("input");
-    const label = document.createElement("label");
-    label.className = "visually-hidden";
-    label.htmlFor = inputId;
-    label.textContent = `Number of ${description.textContent}`;
     input.id = inputId;
     input.type = "number";
     input.inputMode = "numeric";
@@ -148,19 +156,26 @@ if (typeof document !== "undefined") {
     input.step = "1";
     input.value = "0";
     input.defaultValue = "0";
+    input.setAttribute("aria-label", `Number of ${description.textContent}`);
     input.setAttribute("aria-describedby", "chip-payout-hint chip-feedback");
+    guessEntry.append(input);
+    input.addEventListener("input", () => {
+      guessEntry.hidden = input.value === "0";
+      payoutEmpty.hidden = !countInputs.every((countInput) => countInput.value === "0");
+      input.removeAttribute("aria-invalid");
+      chipFeedback.textContent = "";
+      chipFeedback.classList.remove("correct");
+    });
     addButton.addEventListener("click", () => {
       const current = input.value === "" ? 0 : Number(input.value);
       if (!Number.isSafeInteger(current) || current < 0 || current === Number.MAX_SAFE_INTEGER) return;
       input.value = String(current + 1);
-      input.removeAttribute("aria-invalid");
-      chipFeedback.textContent = "";
-      chipFeedback.classList.remove("correct");
       input.dispatchEvent(new Event("input", { bubbles: true }));
     });
     chipAddButtons.push(addButton);
-    choice.append(addButton, description, label, input);
-    chipInputs.append(choice);
+    guessEntries.push(guessEntry);
+    chipTray.append(trayChoice);
+    payoutCounts.append(guessEntry);
     return input;
   });
 
@@ -209,11 +224,19 @@ if (typeof document !== "undefined") {
     commissionInput.disabled = false;
     payoutInput.disabled = false;
     const usesChips = mode !== "numbers";
+    betPanel.classList.toggle("chip-mode", usesChips);
     betAmount.hidden = usesChips;
     betChips.hidden = !usesChips;
+    payoutGuess.hidden = !usesChips;
+    payoutEmpty.hidden = false;
+    betQuestion.hidden = usesChips;
     amountInputs.hidden = mode === "chips-payout";
     numberPayout.hidden = usesChips;
     chipPayout.hidden = !usesChips;
+    countInputs.forEach((input, index) => {
+      input.value = "0";
+      guessEntries[index].hidden = true;
+    });
     checkButton.hidden = false;
     nextButton.hidden = true;
     status.textContent = mode === "numbers"
@@ -294,7 +317,7 @@ if (typeof document !== "undefined") {
   nextButton.addEventListener("click", () => {
     startRound();
     if (mode === "chips-payout") {
-      countInputs[0].focus();
+      chipAddButtons[0].focus();
     } else {
       commissionInput.focus();
     }

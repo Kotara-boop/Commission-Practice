@@ -53,16 +53,31 @@
           </div>
         </section>
 
-        <div class="bet-panel">
-          <div class="bet-decoration bet-decoration-left" aria-hidden="true"></div>
-          <div class="bet-decoration bet-decoration-right" aria-hidden="true"></div>
-          <p>BET AMOUNT</p>
-          <strong id="bet-amount">$0</strong>
-          <div id="bet-chips" class="bet-chips" aria-label="Bet chips" hidden></div>
-          <span>What does this bet break down to?</span>
-        </div>
-
         <form id="answer-form" novalidate>
+          <div class="bet-panel">
+            <div class="bet-decoration bet-decoration-left" aria-hidden="true"></div>
+            <div class="bet-decoration bet-decoration-right" aria-hidden="true"></div>
+            <div class="bet-display">
+              <section class="bet-side" aria-label="Bet amount">
+                <p>BET AMOUNT</p>
+                <strong id="bet-amount">$0</strong>
+                <div id="bet-chips" class="bet-chips" aria-label="Bet chips" hidden></div>
+              </section>
+              <fieldset id="payout-guess" class="payout-guess" aria-describedby="chip-payout-hint">
+                <legend>95% PAYOUT GUESS</legend>
+                <div id="payout-counts" class="payout-counts"></div>
+                <p id="payout-empty">Tap a chip below to build your guess.</p>
+              </fieldset>
+            </div>
+            <span id="bet-question">What does this bet break down to?</span>
+            <fieldset id="chip-payout" class="chip-payout" aria-describedby="chip-payout-hint chip-feedback" hidden>
+              <legend>Choose payout chips</legend>
+              <p id="chip-payout-hint">Tap each chip to add one to your payout guess. You can edit the counts above.</p>
+              <div id="chip-tray" class="chip-tray"></div>
+              <p class="field-feedback" id="chip-feedback" aria-live="polite"></p>
+            </fieldset>
+          </div>
+
           <div class="inputs" id="amount-inputs">
             <div class="field">
               <label for="commission">5% commission</label>
@@ -83,13 +98,6 @@
               <p class="field-feedback" id="payout-feedback"></p>
             </div>
           </div>
-          <fieldset id="chip-payout" class="chip-payout" aria-describedby="chip-payout-hint chip-feedback" hidden>
-            <legend>95% payout in chips</legend>
-            <p id="chip-payout-hint">Enter how many of each chip or quarter you would pay. Any combination that adds up to the payout is correct.</p>
-            <div id="chip-inputs" class="chip-inputs"></div>
-            <p class="field-feedback" id="chip-feedback" aria-live="polite"></p>
-          </fieldset>
-
           <div class="form-footer">
             <p id="status" role="status" aria-live="polite">Enter both amounts to check your answer.</p>
             <button type="submit" id="check-button">Check answer <span aria-hidden="true">↗</span></button>
