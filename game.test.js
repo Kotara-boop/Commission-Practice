@@ -4,23 +4,32 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const { randomBet, parseMoney, calculateAmounts, chipBreakdown, chipTotal, DENOMINATIONS, recordResult, formatStats, recordTime, formatTimeStats, formatElapsed } = require("./game.js");
 
-test("bets use a 70/30 split with $2,500 in the lower range", () => {
+test("bets use a 40/40/20 split across the three ranges", () => {
   assert.equal(randomBet(() => 0), 5);
-  assert.equal(randomBet(() => 0.7 - Number.EPSILON), 2500);
-  assert.equal(randomBet(() => 0.7), 2505);
+  assert.equal(randomBet(() => 0.4 - Number.EPSILON), 995);
+  assert.equal(randomBet(() => 0.4), 1000);
+  assert.equal(randomBet(() => 0.8 - Number.EPSILON), 2495);
+  assert.equal(randomBet(() => 0.8), 2500);
   assert.equal(randomBet(() => 0.999999), 15000);
-  let lower = 0;
+  let under1000 = 0;
+  let under2500 = 0;
   for (let i = 0; i < 10000; i++) {
     const bet = randomBet(() => (i + 0.5) / 10000);
     assert.ok(bet >= 5 && bet <= 15000 && bet % 5 === 0);
-    if (bet <= 2500) lower++;
+    if (bet < 1000) under1000++;
+    if (bet < 2500) under2500++;
   }
-  assert.equal(lower, 7000);
-  for (let i = 0; i < 500; i++) {
-    assert.equal(randomBet(() => 0.7 * (i + 0.5) / 500), (i + 1) * 5);
-  }
-  for (let i = 0; i < 2500; i++) {
-    assert.equal(randomBet(() => 0.7 + 0.3 * (i + 0.5) / 2500), 2505 + i * 5);
+  assert.equal(under1000, 4000);
+  assert.equal(under2500, 8000);
+  const ranges = [
+    { min: 5, count: 199, start: 0, width: 0.4 },
+    { min: 1000, count: 300, start: 0.4, width: 0.4 },
+    { min: 2500, count: 2501, start: 0.8, width: 0.2 },
+  ];
+  for (const { min, count, start, width } of ranges) {
+    for (let i = 0; i < count; i++) {
+      assert.equal(randomBet(() => start + width * (i + 0.5) / count), min + i * 5);
+    }
   }
 });
 
