@@ -21,16 +21,26 @@ const DENOMINATIONS = [
 
 const SMALL_BET_MAX = 200;
 
-function randomBet(random = Math.random, maxBet = Infinity) {
-  if (maxBet <= SMALL_BET_MAX) {
-    const choices = maxBet / BET_INCREMENT;
-    return BET_INCREMENT + Math.floor(random() * choices) * BET_INCREMENT;
+function randomBet(random = Math.random, maxBet = Infinity, minBet = MIN_BET) {
+  if (maxBet !== Infinity) {
+    const choices = (maxBet - minBet) / BET_INCREMENT + 1;
+    return minBet + Math.floor(random() * choices) * BET_INCREMENT;
   }
   const value = random();
   const { min, max, start, end } = BET_RANGES.find((range) => value < range.end);
   const position = (value - start) / (end - start);
   const choices = (max - min) / BET_INCREMENT + 1;
   return min + Math.floor(position * choices) * BET_INCREMENT;
+}
+
+function parseBetRange(minText, maxText) {
+  const parse = (text) => (/^\$?\d+$/.test(text.trim()) ? Number(text.trim().replace("$", "")) : null);
+  const low = parse(minText);
+  const high = parse(maxText);
+  if (low === null || high === null) return null;
+  const min = Math.max(MIN_BET, Math.ceil(low / BET_INCREMENT) * BET_INCREMENT);
+  const max = Math.floor(Math.min(high, MAX_BET) / BET_INCREMENT) * BET_INCREMENT;
+  return min <= max ? { min, max } : null;
 }
 
 function parseMoney(value) {
@@ -98,7 +108,7 @@ function formatTimeStats(timing) {
 }
 
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { SMALL_BET_MAX, randomBet, parseMoney, calculateAmounts, chipBreakdown, chipTotal, DENOMINATIONS, recordResult, formatStats, recordTime, formatTimeStats, formatElapsed };
+  module.exports = { SMALL_BET_MAX, parseBetRange, randomBet, parseMoney, calculateAmounts, chipBreakdown, chipTotal, DENOMINATIONS, recordResult, formatStats, recordTime, formatTimeStats, formatElapsed };
 }
 
 if (typeof document !== "undefined") {
@@ -117,6 +127,10 @@ if (typeof document !== "undefined") {
   const numberPayout = document.getElementById("number-payout");
   const chipFeedback = document.getElementById("chip-feedback");
   const commissionInput = document.getElementById("commission");
+  const customRange = document.getElementById("custom-range");
+  const customMin = document.getElementById("custom-min");
+  const customMax = document.getElementById("custom-max");
+  const customError = document.getElementById("custom-error");
   const commissionField = commissionInput.closest(".field");
   const payoutInput = document.getElementById("payout");
   const commissionFeedback = document.getElementById("commission-feedback");
@@ -135,7 +149,7 @@ if (typeof document !== "undefined") {
   const stats = {};
   for (const design of ["numbers", "chips"]) {
     for (const task of ["", "-payout"]) {
-      for (const range of ["", "-200"]) stats[`${design}${task}${range}`] = emptyStats();
+      for (const range of ["", "-200", "-custom"]) stats[`${design}${task}${range}`] = emptyStats();
     }
   }
   const timingStats = Object.fromEntries(Object.keys(stats).map((name) => [name, {
@@ -145,10 +159,11 @@ if (typeof document !== "undefined") {
   let complete = false;
   let scored = false;
   let mode = "numbers";
+  let activeRange = parseBetRange(customMin.value, customMax.value);
   const payoutOnly = () => mode.includes("-payout");
   const usesChips = () => mode.startsWith("chips");
   const selected = (name) => document.querySelector(`input[name="${name}"]:checked`).value;
-  const currentMode = () => selected("mode") + (selected("task") === "payout" ? "-payout" : "") + (selected("range") === "small" ? "-200" : "");
+  const currentMode = () => selected("mode") + (selected("task") === "payout" ? "-payout" : "") + ({ small: "-200", custom: "-custom" }[selected("range")] || "");
 
   function displayStats() {
     commissionStats.hidden = payoutOnly();
@@ -267,7 +282,9 @@ if (typeof document !== "undefined") {
     roundStart = null;
     includeInAverage = countTowardsAverage;
     answerTimes = { commission: null, payout: null };
-    bet = randomBet(Math.random, mode.endsWith("-200") ? SMALL_BET_MAX : Infinity);
+    if (mode.endsWith("-200")) bet = randomBet(Math.random, SMALL_BET_MAX);
+    else if (mode.endsWith("-custom")) bet = randomBet(Math.random, activeRange.max, activeRange.min);
+    else bet = randomBet();
     complete = false;
     scored = false;
     displayStats();
@@ -390,12 +407,25 @@ if (typeof document !== "undefined") {
     }
   });
 
-  modeInputs.forEach((input) => {
-    input.addEventListener("change", () => {
-      mode = currentMode();
-      startRound();
-    });
-  });
+  function changeMode() {
+    const custom = selected("range") === "custom";
+    customRange.hidden = !custom;
+    if (custom) {
+      const range = parseBetRange(customMin.value, customMax.value);
+      customError.hidden = range !== null;
+      customMin.setAttribute("aria-invalid", String(range === null));
+      customMax.setAttribute("aria-invalid", String(range === null));
+      if (!range) return;
+      activeRange = range;
+      customMin.value = range.min;
+      customMax.value = range.max;
+    }
+    mode = currentMode();
+    startRound();
+  }
+
+  modeInputs.forEach((input) => input.addEventListener("change", changeMode));
+  [customMin, customMax].forEach((input) => input.addEventListener("change", changeMode));
 
   commissionInput.addEventListener("input", () => {
     noteAnswerTime("commission", commissionInput.value.trim() !== "");

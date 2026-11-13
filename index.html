@@ -53,6 +53,12 @@
             <div class="mode-options">
               <label><input type="radio" name="range" value="all" checked> Up to $15,000</label>
               <label><input type="radio" name="range" value="small"> $200 and under</label>
+              <label><input type="radio" name="range" value="custom"> Custom</label>
+            </div>
+            <div id="custom-range" class="custom-range" hidden>
+              <label>From $ <input id="custom-min" type="text" inputmode="numeric" value="50" autocomplete="off"></label>
+              <label>to $ <input id="custom-max" type="text" inputmode="numeric" value="500" autocomplete="off"></label>
+              <p id="custom-error" role="alert" hidden>Enter whole-dollar amounts from $5 to $15,000, with the first no higher than the second. Bets are in $5 steps.</p>
             </div>
           </div>
           <p>Changing modes starts a new bet.</p>

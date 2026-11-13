@@ -2,7 +2,7 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { SMALL_BET_MAX, randomBet, parseMoney, calculateAmounts, chipBreakdown, chipTotal, DENOMINATIONS, recordResult, formatStats, recordTime, formatTimeStats, formatElapsed } = require("./game.js");
+const { SMALL_BET_MAX, parseBetRange, randomBet, parseMoney, calculateAmounts, chipBreakdown, chipTotal, DENOMINATIONS, recordResult, formatStats, recordTime, formatTimeStats, formatElapsed } = require("./game.js");
 
 test("bets use a 40/40/20 split across the three ranges", () => {
   assert.equal(randomBet(() => 0), 5);
@@ -109,4 +109,15 @@ test("small bets are $5 to $200 in $5 steps", () => {
   assert.equal(randomBet(() => 0, SMALL_BET_MAX), 5);
   assert.equal(randomBet(() => 0.999999, SMALL_BET_MAX), 200);
   for (let i = 0; i < 40; i++) assert.equal(randomBet(() => (i + 0.5) / 40, SMALL_BET_MAX), 5 + i * 5);
+});
+
+test("custom ranges round to $5 steps and stay within limits", () => {
+  assert.deepEqual(parseBetRange("50", "500"), { min: 50, max: 500 });
+  assert.deepEqual(parseBetRange("$52", "498"), { min: 55, max: 495 });
+  assert.deepEqual(parseBetRange("1", "99999"), { min: 5, max: 15000 });
+  assert.equal(parseBetRange("500", "50"), null);
+  assert.equal(parseBetRange("6", "9"), null);
+  assert.equal(parseBetRange("abc", "50"), null);
+  assert.equal(randomBet(() => 0, 500, 50), 50);
+  assert.equal(randomBet(() => 0.999999, 500, 50), 500);
 });
