@@ -159,6 +159,9 @@ if (typeof document !== "undefined") {
   let complete = false;
   let scored = false;
   let mode = "numbers";
+  let roundStart = null;
+  let includeInAverage = false;
+  let answerTimes = { commission: null, payout: null };
   let activeRange = parseBetRange(customMin.value, customMax.value);
   const payoutOnly = () => mode.includes("-payout");
   const usesChips = () => mode.startsWith("chips");
