@@ -2,7 +2,7 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { randomBet, parseMoney, calculateAmounts, chipBreakdown, chipTotal, DENOMINATIONS, recordResult, formatStats } = require("./game.js");
+const { randomBet, parseMoney, calculateAmounts, chipBreakdown, chipTotal, DENOMINATIONS, recordResult, formatStats, recordTime, formatTimeStats, formatElapsed } = require("./game.js");
 
 test("bets use a 70/30 split with $2,500 in the lower range", () => {
   assert.equal(randomBet(() => 0), 5);
@@ -73,4 +73,25 @@ test("statistics count correct and incorrect answers and round accuracy", () => 
   recordResult(stats, true);
   assert.deepEqual(stats, { correct: 2, incorrect: 1 });
   assert.equal(formatStats(stats), "2 correct · 1 incorrect · 67% accuracy");
+});
+
+test("timing statistics exclude missing answers and average elapsed times", () => {
+  assert.equal(formatElapsed(null), "—");
+  assert.equal(formatElapsed(0), "0.0s");
+  assert.equal(formatElapsed(3450), "3.5s");
+  const timing = { last: null, total: 0, count: 0 };
+  assert.equal(formatTimeStats(timing), "Last: — · Average: —");
+  recordTime(timing, null);
+  assert.deepEqual(timing, { last: null, total: 0, count: 0 });
+  recordTime(timing, 5000, false);
+  assert.deepEqual(timing, { last: 5000, total: 0, count: 0 });
+  assert.equal(formatTimeStats(timing), "Last: 5.0s · Average: —");
+  recordTime(timing, 1200);
+  recordTime(timing, 3450);
+  assert.deepEqual(timing, { last: 3450, total: 4650, count: 2 });
+  assert.equal(formatTimeStats(timing), "Last: 3.5s · Average: 2.3s");
+  recordTime(timing, 9000, false);
+  assert.equal(formatTimeStats(timing), "Last: 9.0s · Average: 2.3s");
+  recordTime(timing, 0);
+  assert.equal(formatTimeStats(timing), "Last: 0.0s · Average: 1.6s");
 });

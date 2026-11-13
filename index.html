@@ -44,12 +44,13 @@
 
         <section class="statistics" aria-labelledby="statistics-title">
           <div class="statistics-heading">
-            <h3 id="statistics-title">First-attempt accuracy</h3>
-            <p>Separate for each mode; retries don't change your score.</p>
+            <h3 id="statistics-title">Practice statistics</h3>
+            <p>Separate for each mode. Accuracy and times are recorded on the first check; retries don't change them.</p>
+            <p>Timing starts when a bet appears. Submit the commission to stop its timer; otherwise, times end at each answer's last edit before checking. The initial bet and first bet after switching modes don't count toward the average.</p>
           </div>
           <div class="statistics-results" aria-live="polite">
-            <p id="commission-stats"><strong>Commission</strong> <span>0 correct · 0 incorrect · — accuracy</span></p>
-            <p id="payout-stats"><strong>Payout</strong> <span>0 correct · 0 incorrect · — accuracy</span></p>
+            <p id="commission-stats"><strong>Commission</strong> <span class="accuracy">0 correct · 0 incorrect · — accuracy</span> <span class="timing">Last: — · Average: —</span></p>
+            <p id="payout-stats"><strong>Payout</strong> <span class="accuracy">0 correct · 0 incorrect · — accuracy</span> <span class="timing">Last: — · Average: —</span></p>
           </div>
         </section>
 
@@ -70,32 +71,36 @@
               </fieldset>
             </div>
             <span id="bet-question">What does this bet break down to?</span>
-            <fieldset id="chip-payout" class="chip-payout" aria-describedby="chip-payout-hint chip-feedback" hidden>
+            <fieldset id="chip-payout" class="chip-payout" aria-describedby="chip-payout-hint chip-feedback chip-time" hidden>
               <legend>Choose payout chips</legend>
               <p id="chip-payout-hint">Tap a chip below to add one, or tap a chip in your guess to remove one. You can edit the counts above.</p>
               <div id="chip-tray" class="chip-tray"></div>
               <p class="field-feedback" id="chip-feedback" aria-live="polite"></p>
+              <p class="answer-time" id="chip-time" aria-live="polite" hidden></p>
             </fieldset>
           </div>
 
           <div class="inputs" id="amount-inputs">
             <div class="field">
               <label for="commission">5% commission</label>
-              <p id="commission-hint">The amount taken from the bet</p>
+              <p id="commission-hint">The amount taken from the bet. Submit to lock it until you check your answer.</p>
               <div class="input-wrap">
                 <span aria-hidden="true">$</span>
-                <input id="commission" name="commission" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-describedby="commission-hint commission-feedback">
+                <input id="commission" name="commission" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-describedby="commission-hint commission-feedback commission-time">
+                <button type="button" id="submit-commission" aria-label="Submit commission">Submit</button>
               </div>
-              <p class="field-feedback" id="commission-feedback"></p>
+              <p class="field-feedback" id="commission-feedback" aria-live="polite"></p>
+              <p class="answer-time" id="commission-time" aria-live="polite" hidden></p>
             </div>
             <div class="field" id="number-payout">
               <label for="payout">95% payout</label>
               <p id="payout-hint">The amount left after commission</p>
               <div class="input-wrap">
                 <span aria-hidden="true">$</span>
-                <input id="payout" name="payout" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-describedby="payout-hint payout-feedback">
+                <input id="payout" name="payout" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-describedby="payout-hint payout-feedback payout-time">
               </div>
               <p class="field-feedback" id="payout-feedback"></p>
+              <p class="answer-time" id="payout-time" aria-live="polite" hidden></p>
             </div>
           </div>
           <div class="form-footer">

@@ -92,6 +92,7 @@ h2 { margin: 0; font-size: 20px; }
 .chip-description { color: #e2eddf; font-size: 10px; font-weight: 700; text-align: center; white-space: nowrap; }
 .chip-payout .field-feedback { min-height: 16px; margin: 3px 0 0; color: #ffb7ad; font-size: 12px; letter-spacing: 0; font-weight: 400; }
 .chip-payout .field-feedback.correct { color: #c4dfbc; }
+.chip-payout .answer-time { margin: 3px 0 0; color: #d2e4d0; font-size: 12px; letter-spacing: 0; font-weight: 400; }
 .bet-decoration { position: absolute; width: 190px; height: 190px; border: 1px solid rgba(200, 226, 190, .12); border-radius: 50%; top: -18px; pointer-events: none; }
 .bet-decoration::after { content: ""; position: absolute; inset: 14px; border: 1px solid rgba(200, 226, 190, .1); border-radius: 50%; }
 .bet-decoration-left { left: -88px; }
@@ -118,8 +119,13 @@ h2 { margin: 0; font-size: 20px; }
 .input-wrap input { width: 100%; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; padding: 0 12px 0 7px; color: #173c34; font-size: 16px; }
 .input-wrap input::placeholder { color: #748c7b; }
 .input-wrap:has([aria-invalid="true"]) { border: 2px solid #b73227; }
+.input-wrap button { flex: none; margin-right: 5px; padding: 8px 12px; border: 0; border-radius: 8px; background: #dfead7; color: #173c34; font-size: 12px; font-weight: 700; }
+.input-wrap button:hover:not(:disabled) { background: #c9e2bb; }
+.input-wrap button:focus-visible { outline: 2px solid #356c4a; outline-offset: 2px; }
+.input-wrap button:disabled { opacity: .6; cursor: default; }
 .field-feedback { min-height: 16px; margin: 6px 0 0; font-size: 12px; color: #a33b2d; }
 .field-feedback.correct { color: #2f7040; }
+.answer-time { margin: 3px 0 0; color: #506b5c; font-size: 12px; }
 .form-footer { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 15px; padding-top: 20px; border-top: 1px solid #dfe7d9; }
 .form-footer p { margin: 0; color: #506b5c; font-size: 13px; line-height: 1.5; text-align: center; }
 .form-footer button { border: 0; border-radius: 999px; padding: 13px 25px; background: #a3ce92; color: #102c25; font-size: 15px; font-weight: 750; }

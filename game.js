@@ -74,8 +74,26 @@ function formatStats(stats) {
   return `${stats.correct} correct · ${stats.incorrect} incorrect · ${accuracy} accuracy`;
 }
 
+function recordTime(timing, elapsed, includeInAverage = true) {
+  if (elapsed === null) return;
+  timing.last = elapsed;
+  if (includeInAverage) {
+    timing.total += elapsed;
+    timing.count++;
+  }
+}
+
+function formatElapsed(elapsed) {
+  return elapsed === null ? "—" : `${(elapsed / 1000).toFixed(1)}s`;
+}
+
+function formatTimeStats(timing) {
+  const average = timing.count ? timing.total / timing.count : null;
+  return `Last: ${formatElapsed(timing.last)} · Average: ${formatElapsed(average)}`;
+}
+
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { randomBet, parseMoney, calculateAmounts, chipBreakdown, chipTotal, DENOMINATIONS, recordResult, formatStats };
+  module.exports = { randomBet, parseMoney, calculateAmounts, chipBreakdown, chipTotal, DENOMINATIONS, recordResult, formatStats, recordTime, formatTimeStats, formatElapsed };
 }
 
 if (typeof document !== "undefined") {
@@ -97,9 +115,13 @@ if (typeof document !== "undefined") {
   const payoutInput = document.getElementById("payout");
   const commissionFeedback = document.getElementById("commission-feedback");
   const payoutFeedback = document.getElementById("payout-feedback");
+  const commissionTime = document.getElementById("commission-time");
+  const payoutTime = document.getElementById("payout-time");
+  const chipTime = document.getElementById("chip-time");
   const status = document.getElementById("status");
   const commissionStats = document.getElementById("commission-stats");
   const payoutStats = document.getElementById("payout-stats");
+  const submitCommission = document.getElementById("submit-commission");
   const checkButton = document.getElementById("check-button");
   const nextButton = document.getElementById("next-button");
   let bet;
@@ -108,14 +130,28 @@ if (typeof document !== "undefined") {
     chips: { commission: { correct: 0, incorrect: 0 }, payout: { correct: 0, incorrect: 0 } },
     "chips-payout": { commission: { correct: 0, incorrect: 0 }, payout: { correct: 0, incorrect: 0 } },
   };
+  const timingStats = Object.fromEntries(Object.keys(stats).map((name) => [name, {
+    commission: { last: null, total: 0, count: 0 },
+    payout: { last: null, total: 0, count: 0 },
+  }]));
   let complete = false;
   let scored = false;
   let mode = "numbers";
+  let roundStart = null;
+  let includeInAverage = false;
+  let answerTimes = { commission: null, payout: null };
 
   function displayStats() {
     commissionStats.hidden = mode === "chips-payout";
-    commissionStats.querySelector("span").textContent = formatStats(stats[mode].commission);
-    payoutStats.querySelector("span").textContent = formatStats(stats[mode].payout);
+    commissionStats.querySelector(".accuracy").textContent = formatStats(stats[mode].commission);
+    payoutStats.querySelector(".accuracy").textContent = formatStats(stats[mode].payout);
+    commissionStats.querySelector(".timing").textContent = formatTimeStats(timingStats[mode].commission);
+    payoutStats.querySelector(".timing").textContent = formatTimeStats(timingStats[mode].payout);
+  }
+
+  function noteAnswerTime(answer, hasValue = true) {
+    if (roundStart === null || scored) return;
+    answerTimes[answer] = hasValue ? performance.now() - roundStart : null;
   }
 
   function makeChip(denomination) {
@@ -163,9 +199,10 @@ if (typeof document !== "undefined") {
     input.value = "0";
     input.defaultValue = "0";
     input.setAttribute("aria-label", `Number of ${description.textContent}`);
-    input.setAttribute("aria-describedby", "chip-payout-hint chip-feedback");
+    input.setAttribute("aria-describedby", "chip-payout-hint chip-feedback chip-time");
     guessEntry.append(input);
     input.addEventListener("input", () => {
+      noteAnswerTime("payout");
       guessEntry.hidden = input.value === "0";
       payoutEmpty.hidden = !countInputs.every((countInput) => countInput.value === "0");
       input.removeAttribute("aria-invalid");
@@ -217,7 +254,10 @@ if (typeof document !== "undefined") {
     feedback.classList.remove("correct");
   }
 
-  function startRound() {
+  function startRound(countTowardsAverage = false) {
+    roundStart = null;
+    includeInAverage = countTowardsAverage;
+    answerTimes = { commission: null, payout: null };
     bet = randomBet();
     complete = false;
     scored = false;
@@ -227,6 +267,10 @@ if (typeof document !== "undefined") {
     form.reset();
     clearFeedback(commissionInput, commissionFeedback);
     clearFeedback(payoutInput, payoutFeedback);
+    [commissionTime, payoutTime, chipTime].forEach((element) => {
+      element.textContent = "";
+      element.hidden = true;
+    });
     chipFeedback.textContent = "";
     chipFeedback.classList.remove("correct");
     countInputs.forEach((input) => {
@@ -236,6 +280,8 @@ if (typeof document !== "undefined") {
     chipAddButtons.forEach((button) => { button.disabled = false; });
     chipRemoveButtons.forEach((button) => { button.disabled = false; });
     commissionInput.disabled = false;
+    submitCommission.disabled = false;
+    submitCommission.textContent = "Submit";
     payoutInput.disabled = false;
     const usesChips = mode !== "numbers";
     betPanel.classList.toggle("chip-mode", usesChips);
@@ -258,6 +304,7 @@ if (typeof document !== "undefined") {
       : mode === "chips"
         ? "Enter the commission and select your payout chips."
         : "Select your payout chips.";
+    roundStart = performance.now();
   }
 
   function checkChips(expected) {
@@ -300,6 +347,15 @@ if (typeof document !== "undefined") {
     if (!scored) {
       if (mode !== "chips-payout") recordResult(stats[mode].commission, commissionCorrect);
       recordResult(stats[mode].payout, payoutCorrect);
+      if (mode !== "chips-payout") recordTime(timingStats[mode].commission, answerTimes.commission, includeInAverage);
+      recordTime(timingStats[mode].payout, answerTimes.payout, includeInAverage);
+      if (mode !== "chips-payout") {
+        commissionTime.textContent = `Time: ${formatElapsed(answerTimes.commission)}`;
+        commissionTime.hidden = false;
+      }
+      const payoutTimeElement = mode === "numbers" ? payoutTime : chipTime;
+      payoutTimeElement.textContent = `Time: ${formatElapsed(answerTimes.payout)}`;
+      payoutTimeElement.hidden = false;
       scored = true;
       displayStats();
     }
@@ -308,6 +364,7 @@ if (typeof document !== "undefined") {
       complete = true;
       status.textContent = "Nicely done! You're ready for the next bet.";
       commissionInput.disabled = true;
+      submitCommission.disabled = true;
       payoutInput.disabled = true;
       countInputs.forEach((input) => { input.disabled = true; });
       chipAddButtons.forEach((button) => { button.disabled = true; });
@@ -316,6 +373,9 @@ if (typeof document !== "undefined") {
       nextButton.hidden = false;
       nextButton.focus();
     } else {
+      commissionInput.disabled = false;
+      submitCommission.disabled = false;
+      submitCommission.textContent = "Submit";
       status.textContent = mode === "chips-payout"
         ? "Check your payout and give it another try."
         : "Check each amount and give it another try.";
@@ -329,8 +389,32 @@ if (typeof document !== "undefined") {
     });
   });
 
+  commissionInput.addEventListener("input", () => {
+    noteAnswerTime("commission", commissionInput.value.trim() !== "");
+  });
+  submitCommission.addEventListener("click", () => {
+    if (parseMoney(commissionInput.value) === null) {
+      commissionInput.setAttribute("aria-invalid", "true");
+      commissionFeedback.classList.remove("correct");
+      commissionFeedback.textContent = "Enter a dollar amount with up to two decimal places.";
+      commissionInput.focus();
+      return;
+    }
+    noteAnswerTime("commission");
+    clearFeedback(commissionInput, commissionFeedback);
+    commissionFeedback.textContent = "Commission submitted. Check your answer to unlock it.";
+    commissionInput.disabled = true;
+    submitCommission.disabled = true;
+    submitCommission.textContent = "Submitted";
+    if (mode === "numbers") payoutInput.focus();
+    else chipAddButtons[0].focus();
+  });
+  payoutInput.addEventListener("input", () => {
+    noteAnswerTime("payout", payoutInput.value.trim() !== "");
+  });
+
   nextButton.addEventListener("click", () => {
-    startRound();
+    startRound(true);
     if (mode === "chips-payout") {
       chipAddButtons[0].focus();
     } else {

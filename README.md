@@ -10,6 +10,10 @@ Each bet has a 70% chance of being from $5 through $2,500, and a 30% chance of b
 
 Changing modes starts a new bet. Each mode keeps separate commission and payout counts and accuracy percentages based on the first submission for each bet; payout-only mode tracks only payout. Blank or invalid answers on that submission count as incorrect, and retries do not change the recorded result. Statistics reset when the page is reloaded.
 
+Each mode also shows the latest and average time for each answer. Timing starts when a new bet appears. You can press **Submit** beside the commission to record its time and lock it until you check the full answer. Otherwise, each time ends at that answer's last edit before the first check, so the two times can overlap. The initial bet and the first bet after changing modes are timed but excluded from the averages. Blank, untouched answers are excluded from the timing averages; retries and abandoned bets do not change the recorded times.
+
+After checking, each answer's first-attempt time also appears beneath its feedback; a dash means no time was recorded for that answer.
+
 To run the calculation tests with Node.js:
 
 ```sh
