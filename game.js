@@ -19,7 +19,13 @@ const DENOMINATIONS = [
   { cents: 25, label: "25¢", color: "quarter" },
 ];
 
-function randomBet(random = Math.random) {
+const SMALL_BET_MAX = 200;
+
+function randomBet(random = Math.random, maxBet = Infinity) {
+  if (maxBet <= SMALL_BET_MAX) {
+    const choices = maxBet / BET_INCREMENT;
+    return BET_INCREMENT + Math.floor(random() * choices) * BET_INCREMENT;
+  }
   const value = random();
   const { min, max, start, end } = BET_RANGES.find((range) => value < range.end);
   const position = (value - start) / (end - start);
@@ -92,7 +98,7 @@ function formatTimeStats(timing) {
 }
 
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { randomBet, parseMoney, calculateAmounts, chipBreakdown, chipTotal, DENOMINATIONS, recordResult, formatStats, recordTime, formatTimeStats, formatElapsed };
+  module.exports = { SMALL_BET_MAX, randomBet, parseMoney, calculateAmounts, chipBreakdown, chipTotal, DENOMINATIONS, recordResult, formatStats, recordTime, formatTimeStats, formatElapsed };
 }
 
 if (typeof document !== "undefined") {
@@ -106,11 +112,12 @@ if (typeof document !== "undefined") {
   const betQuestion = document.getElementById("bet-question");
   const chipTray = document.getElementById("chip-tray");
   const chipPayout = document.getElementById("chip-payout");
-  const modeInputs = document.querySelectorAll('input[name="mode"]');
+  const modeInputs = document.querySelectorAll('input[name="mode"], input[name="task"], input[name="range"]');
   const amountInputs = document.getElementById("amount-inputs");
   const numberPayout = document.getElementById("number-payout");
   const chipFeedback = document.getElementById("chip-feedback");
   const commissionInput = document.getElementById("commission");
+  const commissionField = commissionInput.closest(".field");
   const payoutInput = document.getElementById("payout");
   const commissionFeedback = document.getElementById("commission-feedback");
   const payoutFeedback = document.getElementById("payout-feedback");
@@ -124,11 +131,13 @@ if (typeof document !== "undefined") {
   const checkButton = document.getElementById("check-button");
   const nextButton = document.getElementById("next-button");
   let bet;
-  const stats = {
-    numbers: { commission: { correct: 0, incorrect: 0 }, payout: { correct: 0, incorrect: 0 } },
-    chips: { commission: { correct: 0, incorrect: 0 }, payout: { correct: 0, incorrect: 0 } },
-    "chips-payout": { commission: { correct: 0, incorrect: 0 }, payout: { correct: 0, incorrect: 0 } },
-  };
+  const emptyStats = () => ({ commission: { correct: 0, incorrect: 0 }, payout: { correct: 0, incorrect: 0 } });
+  const stats = {};
+  for (const design of ["numbers", "chips"]) {
+    for (const task of ["", "-payout"]) {
+      for (const range of ["", "-200"]) stats[`${design}${task}${range}`] = emptyStats();
+    }
+  }
   const timingStats = Object.fromEntries(Object.keys(stats).map((name) => [name, {
     commission: { last: null, total: 0, count: 0 },
     payout: { last: null, total: 0, count: 0 },
@@ -136,12 +145,13 @@ if (typeof document !== "undefined") {
   let complete = false;
   let scored = false;
   let mode = "numbers";
-  let roundStart = null;
-  let includeInAverage = false;
-  let answerTimes = { commission: null, payout: null };
+  const payoutOnly = () => mode.includes("-payout");
+  const usesChips = () => mode.startsWith("chips");
+  const selected = (name) => document.querySelector(`input[name="${name}"]:checked`).value;
+  const currentMode = () => selected("mode") + (selected("task") === "payout" ? "-payout" : "") + (selected("range") === "small" ? "-200" : "");
 
   function displayStats() {
-    commissionStats.hidden = mode === "chips-payout";
+    commissionStats.hidden = payoutOnly();
     commissionStats.querySelector(".accuracy").textContent = formatStats(stats[mode].commission);
     payoutStats.querySelector(".accuracy").textContent = formatStats(stats[mode].payout);
     commissionStats.querySelector(".timing").textContent = formatTimeStats(timingStats[mode].commission);
@@ -257,7 +267,7 @@ if (typeof document !== "undefined") {
     roundStart = null;
     includeInAverage = countTowardsAverage;
     answerTimes = { commission: null, payout: null };
-    bet = randomBet();
+    bet = randomBet(Math.random, mode.endsWith("-200") ? SMALL_BET_MAX : Infinity);
     complete = false;
     scored = false;
     displayStats();
@@ -282,27 +292,26 @@ if (typeof document !== "undefined") {
     submitCommission.disabled = false;
     submitCommission.textContent = "Submit";
     payoutInput.disabled = false;
-    const usesChips = mode !== "numbers";
-    betPanel.classList.toggle("chip-mode", usesChips);
-    betAmount.hidden = usesChips;
-    betChips.hidden = !usesChips;
-    payoutGuess.hidden = !usesChips;
+    const chipMode = usesChips();
+    betPanel.classList.toggle("chip-mode", chipMode);
+    betAmount.hidden = chipMode;
+    betChips.hidden = !chipMode;
+    payoutGuess.hidden = !chipMode;
     payoutEmpty.hidden = false;
-    betQuestion.hidden = usesChips;
-    amountInputs.hidden = mode === "chips-payout";
-    numberPayout.hidden = usesChips;
-    chipPayout.hidden = !usesChips;
+    betQuestion.hidden = chipMode;
+    amountInputs.hidden = chipMode && payoutOnly();
+    commissionField.hidden = payoutOnly();
+    numberPayout.hidden = chipMode;
+    chipPayout.hidden = !chipMode;
     countInputs.forEach((input, index) => {
       input.value = "0";
       guessEntries[index].hidden = true;
     });
     checkButton.hidden = false;
     nextButton.hidden = true;
-    status.textContent = mode === "numbers"
-      ? "Enter both amounts to check your answer."
-      : mode === "chips"
-        ? "Enter the commission and select your payout chips."
-        : "Select your payout chips.";
+    status.textContent = payoutOnly()
+      ? (chipMode ? "Select your payout chips." : "Enter the payout to check your answer.")
+      : (chipMode ? "Enter the commission and select your payout chips." : "Enter both amounts to check your answer.");
     roundStart = performance.now();
   }
 
@@ -337,22 +346,22 @@ if (typeof document !== "undefined") {
     if (complete) return;
 
     const amounts = calculateAmounts(bet);
-    const commissionCorrect = mode === "chips-payout"
+    const commissionCorrect = payoutOnly()
       || checkField(commissionInput, commissionFeedback, amounts.commission);
-    const payoutCorrect = mode !== "numbers"
+    const payoutCorrect = usesChips()
       ? checkChips(amounts.payout)
       : checkField(payoutInput, payoutFeedback, amounts.payout);
 
     if (!scored) {
-      if (mode !== "chips-payout") recordResult(stats[mode].commission, commissionCorrect);
+      if (!payoutOnly()) recordResult(stats[mode].commission, commissionCorrect);
       recordResult(stats[mode].payout, payoutCorrect);
-      if (mode !== "chips-payout") recordTime(timingStats[mode].commission, answerTimes.commission, includeInAverage);
+      if (!payoutOnly()) recordTime(timingStats[mode].commission, answerTimes.commission, includeInAverage);
       recordTime(timingStats[mode].payout, answerTimes.payout, includeInAverage);
-      if (mode !== "chips-payout") {
+      if (!payoutOnly()) {
         commissionTime.textContent = `Time: ${formatElapsed(answerTimes.commission)}`;
         commissionTime.hidden = false;
       }
-      const payoutTimeElement = mode === "numbers" ? payoutTime : chipTime;
+      const payoutTimeElement = usesChips() ? chipTime : payoutTime;
       payoutTimeElement.textContent = `Time: ${formatElapsed(answerTimes.payout)}`;
       payoutTimeElement.hidden = false;
       scored = true;
@@ -375,7 +384,7 @@ if (typeof document !== "undefined") {
       commissionInput.disabled = false;
       submitCommission.disabled = false;
       submitCommission.textContent = "Submit";
-      status.textContent = mode === "chips-payout"
+      status.textContent = payoutOnly()
         ? "Check your payout and give it another try."
         : "Check each amount and give it another try.";
     }
@@ -383,7 +392,7 @@ if (typeof document !== "undefined") {
 
   modeInputs.forEach((input) => {
     input.addEventListener("change", () => {
-      mode = input.value;
+      mode = currentMode();
       startRound();
     });
   });
@@ -405,8 +414,8 @@ if (typeof document !== "undefined") {
     commissionInput.disabled = true;
     submitCommission.disabled = true;
     submitCommission.textContent = "Submitted";
-    if (mode === "numbers") payoutInput.focus();
-    else chipAddButtons[0].focus();
+    if (usesChips()) chipAddButtons[0].focus();
+    else payoutInput.focus();
   });
   payoutInput.addEventListener("input", () => {
     noteAnswerTime("payout", payoutInput.value.trim() !== "");
@@ -414,8 +423,9 @@ if (typeof document !== "undefined") {
 
   nextButton.addEventListener("click", () => {
     startRound(true);
-    if (mode === "chips-payout") {
-      chipAddButtons[0].focus();
+    if (payoutOnly()) {
+      if (usesChips()) chipAddButtons[0].focus();
+      else payoutInput.focus();
     } else {
       commissionInput.focus();
     }

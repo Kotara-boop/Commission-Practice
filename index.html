@@ -34,10 +34,26 @@
 
         <fieldset class="mode-picker">
           <legend>Practice mode</legend>
-          <div class="mode-options">
-            <label><input type="radio" name="mode" value="numbers" checked> Numbers</label>
-            <label><input type="radio" name="mode" value="chips"> Poker chips</label>
-            <label><input type="radio" name="mode" value="chips-payout"> Chips: payout only</label>
+          <div class="mode-row" role="radiogroup" aria-label="Design">
+            <span class="mode-row-label">Design</span>
+            <div class="mode-options">
+              <label><input type="radio" name="mode" value="numbers" checked> Numbers</label>
+              <label><input type="radio" name="mode" value="chips"> Poker chips</label>
+            </div>
+          </div>
+          <div class="mode-row" role="radiogroup" aria-label="Submission">
+            <span class="mode-row-label">Submission</span>
+            <div class="mode-options">
+              <label><input type="radio" name="task" value="both" checked> Commission and payout</label>
+              <label><input type="radio" name="task" value="payout"> Payout only</label>
+            </div>
+          </div>
+          <div class="mode-row" role="radiogroup" aria-label="Bet range">
+            <span class="mode-row-label">Bet range</span>
+            <div class="mode-options">
+              <label><input type="radio" name="range" value="all" checked> Up to $15,000</label>
+              <label><input type="radio" name="range" value="small"> $200 and under</label>
+            </div>
           </div>
           <p>Changing modes starts a new bet.</p>
         </fieldset>

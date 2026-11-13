@@ -2,7 +2,7 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { randomBet, parseMoney, calculateAmounts, chipBreakdown, chipTotal, DENOMINATIONS, recordResult, formatStats, recordTime, formatTimeStats, formatElapsed } = require("./game.js");
+const { SMALL_BET_MAX, randomBet, parseMoney, calculateAmounts, chipBreakdown, chipTotal, DENOMINATIONS, recordResult, formatStats, recordTime, formatTimeStats, formatElapsed } = require("./game.js");
 
 test("bets use a 40/40/20 split across the three ranges", () => {
   assert.equal(randomBet(() => 0), 5);
@@ -103,4 +103,10 @@ test("timing statistics exclude missing answers and average elapsed times", () =
   assert.equal(formatTimeStats(timing), "Last: 9.0s · Average: 2.3s");
   recordTime(timing, 0);
   assert.equal(formatTimeStats(timing), "Last: 0.0s · Average: 1.6s");
+});
+
+test("small bets are $5 to $200 in $5 steps", () => {
+  assert.equal(randomBet(() => 0, SMALL_BET_MAX), 5);
+  assert.equal(randomBet(() => 0.999999, SMALL_BET_MAX), 200);
+  for (let i = 0; i < 40; i++) assert.equal(randomBet(() => (i + 0.5) / 40, SMALL_BET_MAX), 5 + i * 5);
 });

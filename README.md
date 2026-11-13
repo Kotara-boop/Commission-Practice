@@ -6,7 +6,7 @@ Each bet has a 40% chance of being from $5 through $995, a 40% chance of being f
 
 - **Numbers:** Enter both amounts in dollars; answers are checked to the cent.
 - **Poker chips:** Count the bet chips on the left side of the green table. Enter the commission in dollars, then tap a denomination in the chip row to add it to your payout guess on the right. Tap a chip in your guess to remove one, or edit the displayed count. White, red, green, black, purple, orange, and grey chips are worth $1, $5, $25, $100, $500, $1,000, and $5,000 respectively. Use 25-cent US quarters for fractional dollars. Any combination totaling the exact payout is accepted.
-- **Chips: payout only:** Count the bet chips and build your payout guess with the chip row; tap a chip in the guess to remove one. No commission entry is needed.
+- **Mode rows:** Choose a *Design* (Numbers or Poker chips), a *Submission* (Commission and payout, or Payout only, which hides the commission entry), and a *Bet range* (Up to $15,000, or $200 and under for $5–$200 bets). Each combination keeps its own statistics.
 
 Changing modes starts a new bet. Each mode keeps separate commission and payout counts and accuracy percentages based on the first submission for each bet; payout-only mode tracks only payout. Blank or invalid answers on that submission count as incorrect, and retries do not change the recorded result. Statistics reset when the page is reloaded.
 

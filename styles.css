@@ -49,15 +49,15 @@ h2 { margin: 0; font-size: 20px; }
 .statistics-results { display: flex; flex-wrap: wrap; gap: 10px 24px; }
 .statistics-results p { display: flex; flex-direction: column; gap: 3px; margin: 0; color: #365b48; font-size: 13px; }
 .statistics-results strong { color: #173c34; }
-.mode-picker { order: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; border: 0; padding: 0; margin: 0; }
+.mode-picker { order: 1; display: block; gap: 10px 16px; border: 0; padding: 0; margin: 0; }
 .mode-picker legend, .chip-payout legend { color: #173c34; font-size: 14px; font-weight: 750; }
-.mode-picker legend { float: left; padding: 10px 16px 10px 0; text-transform: uppercase; letter-spacing: .04em; }
+.mode-picker legend { float: none; display: block; width: 100%; padding: 0 0 10px; text-transform: uppercase; letter-spacing: .04em; }
 .mode-options { display: flex; flex-wrap: wrap; gap: 10px; }
 .mode-options label { display: flex; align-items: center; gap: 8px; padding: 11px 18px; border: 1px solid #aebfae; border-radius: 999px; background: #f8faf5; color: #244e40; font-size: 14px; font-weight: 700; cursor: pointer; }
 .mode-options label:has(input:checked) { border-color: #9bc58c; background: #a3ce92; color: #102c25; }
 .mode-options label:has(input:focus-visible) { outline: 2px solid #356c4a; outline-offset: 3px; }
 .mode-options input { accent-color: #285d43; margin: 0; }
-.mode-picker p { flex-basis: 100%; margin: 0; color: #506b5c; font-size: 12px; }
+.mode-picker p { margin: 0; color: #506b5c; font-size: 12px; }
 .bet-panel { position: relative; overflow: hidden; text-align: center; background: #1d4d3b; border: 1px solid #4e7964; border-radius: 18px; color: white; padding: 24px 20px 16px; }
 .bet-panel p { margin: 0 0 8px; color: #c4dfbc; font-size: 12px; letter-spacing: .14em; font-weight: 700; }
 .bet-panel strong { display: block; font-size: clamp(42px, 6vw, 58px); font-weight: 750; line-height: 1.1; }
@@ -154,3 +154,5 @@ h2 { margin: 0; font-size: 20px; }
   .chip-choice { flex-basis: 68px; }
   .form-footer button { width: 100%; }
 }
+.mode-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-bottom: 10px; }
+.mode-row-label { min-width: 90px; color: #244e40; font-size: 13px; font-weight: 800; }
