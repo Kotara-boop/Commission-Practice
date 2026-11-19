@@ -25,15 +25,12 @@ button { cursor: pointer; }
   background: #f4eedc;
   box-shadow: 0 20px 55px rgba(32, 63, 47, .08);
 }
-.topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
-.brand { display: inline-flex; gap: 10px; align-items: center; color: #183e35; text-decoration: none; font-size: 11px; font-weight: 700; letter-spacing: .1em; }
-.brand-mark { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #183e35; color: #e0edb8; font-size: 16px; }
-.brand-light { font-weight: 400; }
-.topbar-label, .section-label { font-size: 10px; font-weight: 700; letter-spacing: .13em; }
-.topbar-label { color: #61796a; }
+.section-label { font-size: 10px; font-weight: 700; letter-spacing: .13em; }
+.practice-links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-top: 16px; color: #506b5c; font-size: 12px; }
+.practice-links span { font-weight: 700; }
+.practice-links a { color: #285d43; font-weight: 700; text-underline-offset: 3px; }
+.practice-links a:focus-visible { outline: 2px solid #356c4a; outline-offset: 3px; }
 .intro { padding: 35px 0 24px; }
-.eyebrow { color: #5b7757; font-size: 11px; letter-spacing: .14em; font-weight: 700; }
-.eyebrow span { display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: #a4bd79; }
 h1, h2 { font-weight: 750; }
 h1 { margin: 12px 0; font-size: clamp(36px, 5vw, 52px); line-height: 1.1; letter-spacing: -.035em; }
 h1 em { color: #b6d6a5; font-style: normal; }
@@ -130,7 +127,7 @@ h2 { margin: 0; font-size: 20px; }
 .form-footer p { margin: 0; color: #506b5c; font-size: 13px; line-height: 1.5; text-align: center; }
 .form-footer button { border: 0; border-radius: 999px; padding: 13px 25px; background: #a3ce92; color: #102c25; font-size: 15px; font-weight: 750; }
 .form-footer button:hover { background: #bee0ae; }
-.form-footer button:focus-visible, .brand:focus-visible { outline: 2px solid #356c4a; outline-offset: 3px; }
+.form-footer button:focus-visible { outline: 2px solid #356c4a; outline-offset: 3px; }
 .form-footer button span { margin-left: 12px; }
 .tip { display: flex; align-items: center; gap: 12px; margin: 28px 0; padding: 15px 20px; border: 1px solid #dfe7d9; border-radius: 16px; background: #f2f5eb; }
 .tip-icon { display: grid; place-items: center; width: 33px; height: 33px; border-radius: 50%; background: #dfead7; color: #3a6a47; }
@@ -141,7 +138,6 @@ h2 { margin: 0; font-size: 20px; }
 @media (max-width: 600px) {
   body { padding: 12px; }
   .app { padding: 22px 18px; border-radius: 18px; }
-  .topbar-label { display: none; }
   .intro { padding: 28px 0 22px; }
   .mode-picker legend { float: none; padding: 0; margin-bottom: 10px; }
   .card-heading { margin: 18px 0 12px; }
