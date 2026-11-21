@@ -1,0 +1,19 @@
+{
+  "name": "commission-practice",
+  "version": "1.0.0",
+  "description": "5% Commission Practice - A game to practice calculating commissions",
+  "main": "game.js",
+  "scripts": {
+    "test": "node game.test.js"
+  },
+  "keywords": [
+    "commission",
+    "practice",
+    "game"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  }
+}
